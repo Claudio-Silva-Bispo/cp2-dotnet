@@ -1,35 +1,46 @@
+
 using CP2.API.Application.Interfaces;
 using CP2.API.Application.Services;
+using CP2.API.Domain.Interfaces;
 using CP2.API.Infrastructure.Data.AppData;
 using CP2.API.Infrastructure.Data.Repositories;
-using CP2.API.Domain.Interfaces;
 using Microsoft.EntityFrameworkCore;
-using UserApi.Domain;
-using Microsoft.Extensions.Options;
+using Microsoft.OpenApi.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-builder.Services.AddDbContext<ApplicationContext>(x => {
-    x.UseOracle(builder.Configuration.GetConnectionString("Oracle"));
+
+//Configurando a string e conexo oracle no banco de dados
+builder.Services.AddDbContext<ApplicationContext>(options => {
+
+    options.UseOracle(builder.Configuration.GetConnectionString("Oracle"));
+
 });
 
-// Registrar os serviços necessários
 
-// Fornecedor
+//Adicionando a interface e classe concreta no framework de injeco de dependencia
 builder.Services.AddTransient<IFornecedorRepository, FornecedorRepository>();
 builder.Services.AddTransient<IFornecedorApplicationService, FornecedorApplicationService>();
 
-// Vendedor
 builder.Services.AddTransient<IVendedorRepository, VendedorRepository>();
 builder.Services.AddTransient<IVendedorApplicationService, VendedorApplicationService>();
 
 builder.Services.AddControllers();
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
+
+
 builder.Services.AddEndpointsApiExplorer();
 
-builder.Services.AddSwaggerGen(c => {
-    c.EnableAnnotations();
+//Configurando e habilitando a documentao no swagger 
+builder.Services.AddSwaggerGen(c =>
+{
+    c.SwaggerDoc("v1", new OpenApiInfo
+    {
+        Title = "Claudio Silva Bispo",
+        Version = "RM 553472",
+        Description = "API desenvolvida para CP2 de DOTNET, na faculdade FIAP."
+    });
+    c.EnableAnnotations(); // Habilitar anotaes no Swagger
 });
 
 var app = builder.Build();
@@ -46,3 +57,4 @@ app.UseAuthorization();
 app.MapControllers();
 
 app.Run();
+
